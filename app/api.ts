@@ -82,8 +82,40 @@ export type DashboardViewModel = {
   callHistory: CallHistoryResponse;
 };
 
+function isUsableApiBaseUrl(value: string | undefined): value is string {
+  if (!value) {
+    return false;
+  }
+
+  try {
+    const parsed = new URL(value);
+    const lowerPath = parsed.pathname.toLowerCase();
+
+    if (lowerPath.endsWith(".json")) {
+      return false;
+    }
+
+    if (lowerPath.includes("collection") || lowerPath.includes("schema")) {
+      return false;
+    }
+
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function getBaseUrl(): string {
+  const configuredBaseUrl = process.env.HINTRO_API_BASE_URL?.trim();
+  if (isUsableApiBaseUrl(configuredBaseUrl)) {
+    return configuredBaseUrl.replace(/\/$/, "");
+  }
+
+  throw new Error("HINTRO_API_BASE_URL is missing or invalid");
+}
+
 async function apiFetch<T>(path: string, userId: ApiUserId): Promise<T> {
-  const response = await fetch(`http://localhost:3000${path}`, {
+  const response = await fetch(`${getBaseUrl()}${path}`, {
     headers: {
       "x-user-id": userId,
     },
