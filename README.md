@@ -1,13 +1,13 @@
 ﻿# Hintro Frontend Assignment
 
-Responsive Hintro dashboard built with Next.js, TypeScript, React, and Tailwind CSS 4-style global theming. The UI follows the provided designs, uses the supplied mock API, supports both assignment users, and stores feedback locally in `localStorage`.
+Responsive Hintro dashboard built with Next.js, React, TypeScript, and global token-based styling. The app follows the provided dashboard designs, uses the supplied mock API as the source of truth, supports both required user states, and stores feedback history in `localStorage`.
 
 ## Tech Stack
 
 - Next.js 16
 - React 19
 - TypeScript
-- Tailwind CSS 4
+- Tailwind CSS 4 (via global CSS import)
 - ESLint
 
 ## Setup
@@ -18,15 +18,15 @@ Responsive Hintro dashboard built with Next.js, TypeScript, React, and Tailwind 
 npm install
 ```
 
-### 2. Environment
+### 2. Configure environment
 
-The app uses the mock backend from `.env`:
+The app reads the backend URL from `.env`:
 
 ```env
 HINTRO_API_BASE_URL=https://mock-backend-hintro.vercel.app
 ```
 
-### 3. Run locally
+### 3. Run the app
 
 ```bash
 npm run dev
@@ -38,47 +38,63 @@ Open:
 http://localhost:3000
 ```
 
-## User Modes
+## User States
 
-The app supports the two users required in the assignment:
+The dashboard supports the two users required in the assignment:
 
-- `u1` → empty/new user state
-- `u2` → active user with populated data
+- `u1` → empty / new-user state
+- `u2` → active / populated state
 
-Use either:
+Use either query param:
 
 - `http://localhost:3000/?user=u1`
 - `http://localhost:3000/?user=u2`
 
-The app sends the selected user through the `x-user-id` header.
+The selected value is sent to the API using the `x-user-id` header.
 
-## API Usage
-
-Endpoints used:
+## API Endpoints Used
 
 - `GET /api/auth/profile`
 - `GET /api/auth/dashboard`
 - `GET /api/call-sessions/stats`
 - `GET /api/call-sessions?limit=10`
 
+Base URL:
+
+- `HINTRO_API_BASE_URL`
+
+## Project Structure
+
+- `app/page.tsx` – server entry page and user selection handling
+- `app/api.ts` – typed API integration layer
+- `app/dashboard-data.ts` – API-to-UI transformation and formatting helpers
+- `app/dashboard-client.tsx` – main client coordinator
+- `app/components/` – extracted dashboard sections, layout pieces, modals, icons, and feedback hook
+- `app/globals.css` – global theme tokens, layout, responsive styling, and scrollbar styling
+
 ## Conventions
 
-- API data is the source of truth for dashboard content
-- `u1` and `u2` are handled via query param + request header
-- Time values from the API are formatted into UI-friendly strings
-- Global design tokens live in `app/globals.css`
-- Feedback and feedback history are stored in browser `localStorage`
-- UI sections are componentized under `app/components`
+- API data is the only source of truth for dashboard content
+- No fallback dashboard data is injected in place of API results
+- Global visual values are tokenized in `app/globals.css`
+- Dashboard UI is componentized to keep layout, sections, and modal logic separated
+- Feedback entries and history are stored in browser `localStorage`
+- Duration values from API responses are formatted into display strings like `14m 22sec`
+- Recent-session timestamps are formatted into relative labels such as `2 days ago`
 
 ## Assumptions
 
-- The provided backend remains available at `HINTRO_API_BASE_URL`
+- The provided mock backend remains available at `HINTRO_API_BASE_URL`
 - `u1` returns empty-state data
 - `u2` returns active/randomized data
-- The assignment prioritizes responsive UI, Figma fidelity, and correct API-driven states
+- The assignment prioritizes Figma fidelity, responsive behavior, and correct API-driven states
 
 ## Validation
+
+Run lint:
 
 ```bash
 npm run lint
 ```
+
+
